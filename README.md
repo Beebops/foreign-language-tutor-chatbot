@@ -1,4 +1,4 @@
-# FOREIGN LANGUAGE TUTOR CHATBOT
+# Foreign Language Tutor Chatbot
 
 ## API
 
