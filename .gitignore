@@ -1,4 +1,4 @@
 /venv
 __pycache__
-chatbot_test.py
-openai_test.py
+/chatbot_test.py
+/openai_test.py
