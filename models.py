@@ -1,12 +1,9 @@
+from flask_bcrypt import Bcrypt
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin
-from flask_bcrypt import Bcrypt
 
-
-bcrypt = Bcrypt()
 db = SQLAlchemy()
-login_manager = LoginManager()
+bcrypt = Bcrypt()
 
 class Chat(db.Model):
     """Model of a user's chat"""
@@ -17,12 +14,14 @@ class Chat(db.Model):
 
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey("users.id"),
-        ondelete="cascade")
-    
+        db.ForeignKey("users.id", ondelete="cascade")
+    )
+
     language = db.Column(db.String(75), nullable=False)
 
     language_level = db.Column(db.String(15), nullable=False)
+
+    chat_logs = db.relationship("Chat_log", backref="chat", cascade="all, delete-orphan")
 
 class Chat_log(db.Model):
     """Model of messages produced by either the user or assistant in a chat"""
@@ -38,15 +37,15 @@ class Chat_log(db.Model):
     timestamp = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow())
+        default=datetime.utcnow()
+    )
     
     chat_id = db.Column(
         db.Integer,
-        db.ForeignKey("chats.id"),
-        ondelete="cascade")
-    
+        db.ForeignKey("chats.id", ondelete="cascade")
+    )
 
-class User(UserMixin, db.Model):
+class User(db.Model):
     """User in the system"""
 
     __tablename__ = "users"
@@ -93,19 +92,14 @@ class User(UserMixin, db.Model):
             if is_authenticated:
                 return user
 
-        return False    
-
-@login_manager.user_loader
-def load_user(user_id):
-    """ Returns the user instance with the passed in user id"""
-
-    return User.query.get(int(user_id))
+        return False
+    
 
 def connect_db(app):
-    """Connect database to provided Flask app.
+    """Connect this database to provided Flask app.
 
-    Call this in your Flask app.
+    You should call this in your Flask app.
     """
 
     db.app = app
-    db.init_app(app)
+    db.init_app(app)    
