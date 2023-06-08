@@ -1,6 +1,7 @@
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, login_user
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -44,8 +45,9 @@ class Chat_log(db.Model):
         db.Integer,
         db.ForeignKey("chats.id", ondelete="cascade")
     )
+    
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """User in the system"""
 
     __tablename__ = "users"
@@ -57,6 +59,11 @@ class User(db.Model):
     email = db.Column(db.String(120), nullable=False, unique=True)
 
     password = db.Column(db.String(300), nullable=False)
+
+    chats = db.relationship("Chat", backref="user", cascade="all, delete-orphan")
+
+    def get_id(self):
+        return str(self.id)
 
     def __repr__(self):
         return f"<User #{self.id}: {self.username}>"
@@ -87,10 +94,9 @@ class User(db.Model):
         """
         user = cls.query.filter_by(username=username).first()
 
-        if user:
-            is_authenticated = bcrypt.check_password_hash(user.password, password)
-            if is_authenticated:
-                return user
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return user
 
         return False
     

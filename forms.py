@@ -1,13 +1,15 @@
-from wtforms import StringField, PasswordField, ValidationError, EqualTo, validators
+from wtforms import StringField, PasswordField, ValidationError, validators
+from wtforms.validators import EqualTo
 from flask_wtf import FlaskForm
 from wtforms.validators import InputRequired, Length, Email
+from models import User
 import email_validator
 from flask_login import current_user
-from models import User
+
 
 class login_form(FlaskForm):
-    username = StringField("Username", validators=[InputRequired()])
-    password = PasswordField("Password", validators=[InputRequired(), Length(min=8, max=72)])
+    username = StringField("Username", validators=[InputRequired()], render_kw={"class": "form-control"})
+    password = PasswordField("Password", validators=[InputRequired(), Length(min=8, max=72)], render_kw={"class": "form-control"})
 
 class registration_form(FlaskForm):
     username = StringField("Username", validators=[InputRequired()])
